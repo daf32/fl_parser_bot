@@ -13,7 +13,10 @@ def parsing(URL):
     orders = soup.find_all(name='a',class_='b-post__link')
     order = ''
     for i in range(int(len(orders))):
-        order += f'{i+1}. {orders[i].text}\n'
+        b = orders[i].get('href').strip()
+        url = 'https://www.fl.ru'
+        order += f'{i+1}. <a href="{url}{b}">{orders[i].text}</a>\n'
+    print(order)
     return order
 bot = telebot.TeleBot('5522962137:AAFf59l06mGDxEgKRhUOjzljnPCWHM3HjPc')
 @bot.message_handler(content_types=['text'])
@@ -21,7 +24,7 @@ bot = telebot.TeleBot('5522962137:AAFf59l06mGDxEgKRhUOjzljnPCWHM3HjPc')
 def send_text(message):
     if message.text.lower() == '/start' or message.text.lower() == '/старт' or message.text.lower() == 'start' or message.text.lower() == 'старт':
         bot.send_message(message.chat.id,
-                         f'Страница {page}:\n{parsing(URL+pages[page])}',reply_markup=start_markup)
+                         f'Страница {page}:\n{parsing(URL+pages[page])}',parse_mode='HTML', disable_web_page_preview=True,reply_markup=start_markup)
 @bot.callback_query_handler(func=lambda call: True)
 def callback_inline(call):
     global page
@@ -29,18 +32,18 @@ def callback_inline(call):
         if page == 1:
             page=6
             bot.edit_message_text(chat_id=call.message.chat.id,message_id=call.message.id,
-                                  text=f'Страница {page}:\n{parsing(URL+pages[page])}',reply_markup=start_markup)
+                                  text=f'Страница {page}:\n{parsing(URL+pages[page])}',parse_mode='HTML', disable_web_page_preview=True,reply_markup=start_markup)
         else:
             page-=1
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.id,
-                                  text=f'Страница {page}:\n{parsing(URL + pages[page])}', reply_markup=start_markup)
+                                  text=f'Страница {page}:\n{parsing(URL + pages[page])}',parse_mode='HTML', disable_web_page_preview=True, reply_markup=start_markup)
     if call.data == 'right':
         if page==6:
             page=1
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.id,
-                                  text=f'Страница {page}:\n{parsing(URL + pages[page])}', reply_markup=start_markup)
+                                  text=f'Страница {page}:\n{parsing(URL + pages[page])}',parse_mode='HTML', disable_web_page_preview=True, reply_markup=start_markup)
         else:
             page+=1
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.id,
-                                  text=f'Страница {page}:\n{parsing(URL + pages[page])}', reply_markup=start_markup)
-bot.polling()
+                                  text=f'Страница {page}:\n{parsing(URL + pages[page])}',parse_mode='HTML', disable_web_page_preview=True, reply_markup=start_markup)
+bot.polling(none_stop=True, interval=0)
